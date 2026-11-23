@@ -32,7 +32,8 @@ export default function App() {
 
   // /projects/<id> opens that tray, and the address follows the tray
   useEffect(() => {
-    const i = projects.findIndex((p) => path === `/projects/${p.id}`)
+    const projectPath = path.replace(/\/+$/, '')
+    const i = projects.findIndex((p) => projectPath === `/projects/${p.id}`)
     if (i >= 0) setAt({ project: i, slide: 0 })
   }, [path])
   useEffect(() => {

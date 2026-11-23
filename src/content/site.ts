@@ -5,8 +5,8 @@
 import type { Text } from '../lang'
 
 export const site: { name: string; caption: Text; place: Text; email: string; links: { label: string; href: string }[] } = {
-  name: 'Your Name',
-  caption: { en: 'Product Engineer', zh: '产品工程师' },
+  name: 'Yiming Sun',
+  caption: { en: 'Portfolio template', zh: '个人主页模板' },
   place: { en: 'Your City · 2026', zh: '你的城市 · 2026' },
   email: 'you@example.com',
   links: [

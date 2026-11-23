@@ -1,0 +1,57 @@
+name: Deploy homepage to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Prepare direct links and license notices
+        run: |
+          node --input-type=module <<'JS'
+          import { copyFile, mkdir } from 'node:fs/promises'
+          import { projects } from './src/content/projects.ts'
+
+          const routes = ['about', 'experience', 'projects', ...projects.map(({ id }) => 'projects/' + id)]
+          for (const route of routes) {
+            await mkdir('dist/' + route, { recursive: true })
+            await copyFile('dist/index.html', 'dist/' + route + '/index.html')
+          }
+          await copyFile('dist/index.html', 'dist/404.html')
+          await copyFile('LICENSE', 'dist/LICENSE')
+          await copyFile('NOTICE.md', 'dist/NOTICE.md')
+          JS
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
